@@ -11,10 +11,30 @@ module Authlogic
     # which is an excellent resource for regular expressions.
     def self.email
       @email_regex ||= begin
-        email_name_regex  = '[A-Z0-9_\.%\+\-\']+'
+        email_name_regex  = '[A-Z0-9_\.&%\+\-\']+'
         domain_head_regex = '(?:[A-Z0-9\-]+\.)+'
         domain_tld_regex  = '(?:[A-Z]{2,13})'
         /\A#{email_name_regex}@#{domain_head_regex}#{domain_tld_regex}\z/i
+      end
+    end
+
+    # A draft regular expression for internationalized email addresses.
+    # Given that the standard may be in flux, this simply emulates @email_regex but rather than
+    # allowing specific characters for each part, it instead disallows the complement set of characters:
+    # - email_name_regex disallows: @[]^ !"#$()*,/:;<=>?`{|}~\ and control characters
+    # - domain_head_regex disallows: _%+ and all characters in email_name_regex
+    # - domain_tld_regex disallows: 0123456789- and all characters in domain_head_regex
+    # http://en.wikipedia.org/wiki/Email_address#Internationalization
+    # http://tools.ietf.org/html/rfc6530
+    # http://www.unicode.org/faq/idn.html
+    # http://ruby-doc.org/core-2.1.5/Regexp.html#class-Regexp-label-Character+Classes
+    # http://en.wikipedia.org/wiki/Unicode_character_property#General_Category
+    def self.email_nonascii
+      @email_nonascii_regex ||= begin
+        email_name_regex  = '[^[:cntrl:][@\[\]\^ \!\"#$\(\)*,/:;<=>\?`{|}~\\\]]+'
+        domain_head_regex = '(?:[^[:cntrl:][@\[\]\^ \!\"#$&\(\)*,/:;<=>\?`{|}~\\\_\.%\+\']]+\.)+'
+        domain_tld_regex  = '(?:[^[:cntrl:][@\[\]\^ \!\"#$&\(\)*,/:;<=>\?`{|}~\\\_\.%\+\-\'0-9]]{2,13})'
+        /\A#{email_name_regex}@#{domain_head_regex}#{domain_tld_regex}\z/
       end
     end
 
