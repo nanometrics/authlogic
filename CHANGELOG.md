@@ -1,12 +1,29 @@
 # Changelog
 
+## Unreleased
+
+* changes
+  * ...
+
+## 3.4.6 2015
+
+* changes
+  * add Regex.email_nonascii for validation of emails w/unicode (@rchekaluk)
+  * allow scrypt 2.x (@jaredbeck)
+
+## 3.4.5 2015-03-01
+
+* changes
+  * security-hardening fix and cleanup in persistence_token lookup
+  * security-hardening fix in perishable_token lookup (thx @tomekr)
+
 ## 3.4.4 2014-12-23
 
 * changes
   * extract rw_config into an Authlogic::Config module
   * improved the way config changes are made in tests
   * fix for Rails 4.2 by extending ActiveModel
-  
+
 ## 3.4.3 2014-10-08
 
 * changes
@@ -37,7 +54,7 @@
   * added request store for better concurency for threaded environments
 
 * changes
-  * made scrypt the default crypto provider from SHA512
+  * BREAKING CHANGE: made scrypt the default crypto provider from SHA512 (https://github.com/binarylogic/authlogic#upgrading-to-authlogic-340)
   * ditched appraisal
   * officially support rails 4 (still supporting rails 3)
   * improved find_with_case default performance
