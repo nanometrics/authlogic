@@ -12,8 +12,8 @@ module Authlogic
       end
 
       module Config
-        # This includes a lot of helpful methods for authenticating records which The Authlogic::Session module relies on.
-        # To use it just do:
+        # This includes a lot of helpful methods for authenticating records
+        # which the Authlogic::Session module relies on. To use it just do:
         #
         #   class User < ActiveRecord::Base
         #     acts_as_authentic
@@ -26,14 +26,16 @@ module Authlogic
         #   end
         #
         # See the various sub modules for the configuration they provide.
-        def acts_as_authentic(unsupported_options = nil, &block)
+        def acts_as_authentic(unsupported_options = nil)
           # Stop all configuration if the DB is not set up
-          return if !db_setup?
+          return unless db_setup?
 
-          if !unsupported_options.nil?
+          unless unsupported_options.nil?
             raise ArgumentError.new(
-              "You are using the old v1.X.X configuration method for Authlogic. Instead of passing a hash of " +
-              "configuration options to acts_as_authentic, pass a block: acts_as_authentic { |c| c.my_option = my_value }"
+              "You are using the old v1.X.X configuration method for " \
+                "Authlogic. Instead of passing a hash of configuration " \
+                "options to acts_as_authentic, pass a block: " \
+                "acts_as_authentic { |c| c.my_option = my_value }"
             )
           end
 
@@ -41,12 +43,15 @@ module Authlogic
           acts_as_authentic_modules.each { |mod| include mod }
         end
 
-        # Since this part of Authlogic deals with another class, ActiveRecord, we can't just start including things
-        # in ActiveRecord itself. A lot of these module includes need to be triggered by the acts_as_authentic method
-        # call. For example, you don't want to start adding in email validations and what not into a model that has
-        # nothing to do with Authlogic.
+        # Since this part of Authlogic deals with another class, ActiveRecord,
+        # we can't just start including things in ActiveRecord itself. A lot of
+        # these module includes need to be triggered by the acts_as_authentic
+        # method call. For example, you don't want to start adding in email
+        # validations and what not into a model that has nothing to do with
+        # Authlogic.
         #
-        # That being said, this is your tool for extending Authlogic and "hooking" into the acts_as_authentic call.
+        # That being said, this is your tool for extending Authlogic and
+        # "hooking" into the acts_as_authentic call.
         def add_acts_as_authentic_module(mod, action = :append)
           modules = acts_as_authentic_modules.clone
           case action
@@ -67,18 +72,23 @@ module Authlogic
         end
 
         private
+
           def db_setup?
             begin
               column_names
               true
-            rescue Exception
+            rescue StandardError
               false
             end
           end
 
           def first_column_to_exist(*columns_to_check)
             if db_setup?
-              columns_to_check.each { |column_name| return column_name.to_sym if column_names.include?(column_name.to_s) }
+              columns_to_check.each do |column_name|
+                if column_names.include?(column_name.to_s)
+                  return column_name.to_sym
+                end
+              end
             end
             columns_to_check.first && columns_to_check.first.to_sym
           end
@@ -99,4 +109,3 @@ end
 ::ActiveRecord::Base.send :include, Authlogic::ActsAsAuthentic::SessionMaintenance
 ::ActiveRecord::Base.send :include, Authlogic::ActsAsAuthentic::SingleAccessToken
 ::ActiveRecord::Base.send :include, Authlogic::ActsAsAuthentic::ValidationsScope
-

@@ -8,7 +8,7 @@ module Authlogic
           include InstanceMethods
         end
       end
-      
+
       module ClassMethods
         # This is how you persist a session. This finds the record for the current session using
         # a variety of methods. It basically tries to "log in" the user without the user having
@@ -34,22 +34,26 @@ module Authlogic
         #
         # See the id method for more information on ids.
         def find(id = nil, priority_record = nil)
-          session = new({:priority_record => priority_record}, id)
+          session = new({ priority_record: priority_record }, id)
           session.priority_record = priority_record
           if session.persisting?
             session
-          else
-            nil
           end
         end
       end
-      
+
       module InstanceMethods
-        # Let's you know if the session is being persisted or not, meaning the user does not have to explicitly log in
-        # in order to be logged in. If the session has no associated record, it will try to find a record and persist
-        # the session. This is the method that the class level method find uses to ultimately persist the session.
+        # Returns boolean indicating if the session is being persisted or not,
+        # meaning the user does not have to explicitly log in in order to be
+        # logged in.
+        #
+        # If the session has no associated record, it will try to find a record
+        # and persist the session.
+        #
+        # This is the method that the class level method find uses to ultimately
+        # persist the session.
         def persisting?
-          return true if !record.nil?
+          return true unless record.nil?
           self.attempted_record = nil
           self.remember_me = !cookie_credentials.nil? && !cookie_credentials[2].nil?
           before_persisting

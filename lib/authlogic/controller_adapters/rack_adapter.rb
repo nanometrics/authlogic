@@ -37,27 +37,34 @@ module Authlogic
     #     end
     #
     class RackAdapter < AbstractAdapter
-
       def initialize(env)
         # We use the Rack::Request object as the controller object.
         # For this to work, we have to add some glue.
         request = Rack::Request.new(env)
 
         request.instance_eval do
-          def request; self; end
-          def remote_ip; self.ip; end
+          def request
+            self
+          end
+
+          def remote_ip
+            self.ip
+          end
         end
 
         super(request)
         Authlogic::Session::Base.controller = self
       end
 
-      # Rack Requests stores cookies with not just the value, but also with flags and expire information in the hash.
-      # Authlogic does not like this, so we drop everything except the cookie value
+      # Rack Requests stores cookies with not just the value, but also with
+      # flags and expire information in the hash. Authlogic does not like this,
+      # so we drop everything except the cookie value.
       def cookies
-        controller.cookies.map{|key, value_hash| {key => value_hash[:value]} }.inject(:merge) || {}
+        controller
+          .cookies
+          .map { |key, value_hash| { key => value_hash[:value] } }
+          .inject(:merge) || {}
       end
     end
   end
-
 end

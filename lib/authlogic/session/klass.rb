@@ -16,7 +16,8 @@ module Authlogic
       module Config
         # Lets you change which model to use for authentication.
         #
-        # * <tt>Default:</tt> inferred from the class name. UserSession would automatically try User
+        # * <tt>Default:</tt> inferred from the class name. UserSession would
+        #   automatically try User
         # * <tt>Accepts:</tt> an ActiveRecord class
         def authenticate_with(klass)
           @klass_name = klass.name
@@ -24,9 +25,10 @@ module Authlogic
         end
         alias_method :authenticate_with=, :authenticate_with
 
-        # The name of the class that this session is authenticating with. For example, the UserSession class will
-        # authenticate with the User class unless you specify otherwise in your configuration. See authenticate_with
-        # for information on how to change this value.
+        # The name of the class that this session is authenticating with. For
+        # example, the UserSession class will authenticate with the User class
+        # unless you specify otherwise in your configuration. See
+        # authenticate_with for information on how to change this value.
         def klass
           @klass ||= klass_name ? klass_name.constantize : nil
         end
@@ -48,7 +50,7 @@ module Authlogic
         #
         #   session.record
         def initialize(*args)
-          if !self.class.configured_klass_methods
+          unless self.class.configured_klass_methods
             self.class.send(:alias_method, klass_name.demodulize.underscore.to_sym, :record)
             self.class.configured_klass_methods = true
           end
@@ -56,6 +58,7 @@ module Authlogic
         end
 
         private
+
           def klass
             self.class.klass
           end

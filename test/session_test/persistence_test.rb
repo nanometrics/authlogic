@@ -4,7 +4,8 @@ module SessionTest
   class PersistenceTest < ActiveSupport::TestCase
     def test_find
       aaron = users(:aaron)
-      assert !UserSession.find
+      refute UserSession.find
+      UserSession.allow_http_basic_auth = true
       http_basic_auth_for(aaron) { assert UserSession.find }
       set_cookie_for(aaron)
       assert UserSession.find
@@ -22,7 +23,7 @@ module SessionTest
       aaron = users(:aaron)
       session = UserSession.new(aaron)
       session.remember_me = true
-      assert !UserSession.remember_me
+      refute UserSession.remember_me
       assert session.save
       assert session.remember_me?
       session = UserSession.find(aaron)

@@ -1,9 +1,97 @@
 # Changelog
 
-## Unreleased
+## 4.0.0 Unreleased
+
+* Breaking Changes, Major
+  * Drop support for ruby < 2.2
+  * Drop support for rails < 4.2
+  * HTTP Basic Auth is now disabled by default (use allow_http_basic_auth to enable)
+  * 'httponly' and 'secure' cookie options are enabled by default now
+  * maintain_sessions config has been removed. It has been split into 2 new options:
+    log_in_after_create & log_in_after_password_change (@lucasminissale)
+  * [#558](https://github.com/binarylogic/authlogic/pull/558) Passing an
+    ActionController::Parameters into authlogic will now raise an error
+
+* Breaking Changes, Minor
+  * Methods in Authlogic::Random are now module methods, and are no longer
+    instance methods. Previously, there were both. Do not use Authlogic::Random
+    as a mixin.
+  * Our mutable constants (e.g. arrays, hashes) are now frozen.
+
+* Added
+  * [#581](https://github.com/binarylogic/authlogic/pull/581) Support for rails 5.2
+  * Support for ruby 2.4, specifically openssl gem 2.0
+  * [#98](https://github.com/binarylogic/authlogic/issues/98)
+    I18n for invalid session error message. (@eugenebolshakov)
+
+* Fixed
+  * Random.friendly_token (used for e.g. perishable token) now returns strings
+    of consistent length, and conforms better to RFC-4648
+  * ensure that login field validation uses correct locale (@sskirby)
+  * add a respond_to_missing? in AbstractAdapter that also checks controller respond_to?
+  * [#561](https://github.com/binarylogic/authlogic/issues/561) authenticates_many now works with scope_cookies:true
+  * Allow tld up to 24 characters per https://data.iana.org/TLD/tlds-alpha-by-domain.txt
+
+## 3.8.0 2018-02-07
+
+* Breaking Changes
+  * None
+
+* Added
+  * [#582](https://github.com/binarylogic/authlogic/pull/582) Support rails 5.2
+  * [#583](https://github.com/binarylogic/authlogic/pull/583) Support openssl gem 2.0
+
+* Fixed
+  * None
+
+## 3.7.0 2018-02-07
+
+* Breaking Changes
+  * None
+
+* Added
+  * [#580](https://github.com/binarylogic/authlogic/pull/580) Deprecated
+    `ActionController::Parameters`, will be removed in 4.0.0
+
+* Fixed
+  * None
+
+## 3.6.1 2017-09-30
+
+* Breaking Changes
+  * None
+
+* Added
+  * None
+
+* Fixed
+  * Allow TLD up to 24 characters per
+    https://data.iana.org/TLD/tlds-alpha-by-domain.txt
+  * [#561](https://github.com/binarylogic/authlogic/issues/561)
+    authenticates_many now works with scope_cookies:true
+
+## 3.6.0 2017-04-28
+
+* Breaking Changes
+  * None
+
+* Added
+  * Support rails 5.1
+
+* Fixed
+  * ensure that login field validation uses correct locale (@sskirby)
+
+## 3.5.0 2016-08-29
+
+* new
+  * Rails 5.0 support! Thanks to all reporters and contributors.
 
 * changes
-  * ...
+  * increased default minimum password length to 8 (@iainbeeston)
+  * bind parameters in where statement for rails 5 support
+  * change callback for rails 5 support
+  * converts the ActionController::Parameters to a Hash for rails 5 support
+  * check last_request_at_threshold even if last_request_at_update_allowed returns true (@rofreg)
 
 ## 3.4.6 2015
 
@@ -49,16 +137,20 @@
 
 ## 3.4.0 2014-03-03
 
-* new
+* Breaking Changes
+  * made scrypt the default crypto provider from SHA512
+    (https://github.com/binarylogic/authlogic#upgrading-to-authlogic-340)
+    See UPGRADING.md.
+
+* Added
+  * officially support rails 4 (still supporting rails 3)
   * added cookie signing
   * added request store for better concurency for threaded environments
-
-* changes
-  * BREAKING CHANGE: made scrypt the default crypto provider from SHA512 (https://github.com/binarylogic/authlogic#upgrading-to-authlogic-340)
-  * ditched appraisal
-  * officially support rails 4 (still supporting rails 3)
-  * improved find_with_case default performance
   * added a rack adapter for Rack middleware support
+
+* Fixed
+  * ditched appraisal
+  * improved find_with_case default performance
   * added travis ci support
 
 ## 3.3.0 2014-04-04

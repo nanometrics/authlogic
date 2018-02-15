@@ -27,19 +27,37 @@ module Authlogic
       # All methods for the logged in status feature seat.
       module Methods
         def self.included(klass)
-          return if !klass.column_names.include?("last_request_at")
+          return unless klass.column_names.include?("last_request_at")
 
           klass.class_eval do
             include InstanceMethods
-            scope :logged_in, lambda{ where("last_request_at > ? and current_login_at IS NOT NULL", logged_in_timeout.seconds.ago) }
-            scope :logged_out, lambda{ where("last_request_at is NULL or last_request_at <= ?", logged_in_timeout.seconds.ago) }
+            scope(
+              :logged_in,
+              lambda do
+                where(
+                  "last_request_at > ? and current_login_at IS NOT NULL",
+                  logged_in_timeout.seconds.ago
+                )
+              end
+            )
+            scope(
+              :logged_out,
+              lambda do
+                where(
+                  "last_request_at is NULL or last_request_at <= ?",
+                  logged_in_timeout.seconds.ago
+                )
+              end
+            )
           end
         end
 
         module InstanceMethods
           # Returns true if the last_request_at > logged_in_timeout.
           def logged_in?
-            raise "Can not determine the records login state because there is no last_request_at column" if !respond_to?(:last_request_at)
+            unless respond_to?(:last_request_at)
+              raise "Can not determine the records login state because there is no last_request_at column"
+            end
             !last_request_at.nil? && last_request_at > logged_in_timeout.seconds.ago
           end
 
@@ -49,6 +67,7 @@ module Authlogic
           end
 
           private
+
             def logged_in_timeout
               self.class.logged_in_timeout
             end

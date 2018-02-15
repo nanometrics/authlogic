@@ -6,9 +6,9 @@ module SessionTest
       def test_activated
         assert UserSession.activated?
         Authlogic::Session::Base.controller = nil
-        assert !UserSession.activated?
+        refute UserSession.activated?
       end
-    
+
       def test_controller
         Authlogic::Session::Base.controller = nil
         assert_nil Authlogic::Session::Base.controller
@@ -20,18 +20,18 @@ module SessionTest
         thread1.join
 
         assert_nil Authlogic::Session::Base.controller
-      
+
         thread2 = Thread.new do
           controller = MockController.new
           Authlogic::Session::Base.controller = controller
           assert_equal controller, Authlogic::Session::Base.controller
         end
         thread2.join
-      
+
         assert_nil Authlogic::Session::Base.controller
       end
     end
-    
+
     class InstanceMethodsTest < ActiveSupport::TestCase
       def test_init
         UserSession.controller = nil

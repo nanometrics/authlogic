@@ -2,6 +2,9 @@ require 'test_helper'
 
 module ActsAsAuthenticTest
   class PasswordTest < ActiveSupport::TestCase
+    # If test_human_name is executed after test_i18n_of_human_name the test will fail.
+    i_suck_and_my_tests_are_order_dependent!
+
     def test_crypted_password_field_config
       assert_equal :crypted_password, User.crypted_password_field
       assert_equal :crypted_password, Employee.crypted_password_field
@@ -27,7 +30,7 @@ module ActsAsAuthenticTest
       assert Employee.ignore_blank_passwords
 
       User.ignore_blank_passwords = false
-      assert !User.ignore_blank_passwords
+      refute User.ignore_blank_passwords
       User.ignore_blank_passwords true
       assert User.ignore_blank_passwords
     end
@@ -35,7 +38,7 @@ module ActsAsAuthenticTest
     def test_check_passwords_against_database
       assert User.check_passwords_against_database
       User.check_passwords_against_database = false
-      assert !User.check_passwords_against_database
+      refute User.check_passwords_against_database
       User.check_passwords_against_database true
       assert User.check_passwords_against_database
     end
@@ -45,40 +48,40 @@ module ActsAsAuthenticTest
       assert Employee.validate_password_field
 
       User.validate_password_field = false
-      assert !User.validate_password_field
+      refute User.validate_password_field
       User.validate_password_field true
       assert User.validate_password_field
     end
 
     def test_validates_length_of_password_field_options_config
-      default = {:minimum => 4, :if => :require_password?}
+      default = { minimum: 8, if: :require_password? }
       assert_equal default, User.validates_length_of_password_field_options
       assert_equal default, Employee.validates_length_of_password_field_options
 
-      User.validates_length_of_password_field_options = {:yes => "no"}
-      assert_equal({:yes => "no"}, User.validates_length_of_password_field_options)
+      User.validates_length_of_password_field_options = { yes: "no" }
+      assert_equal({ yes: "no" }, User.validates_length_of_password_field_options)
       User.validates_length_of_password_field_options default
       assert_equal default, User.validates_length_of_password_field_options
     end
 
     def test_validates_confirmation_of_password_field_options_config
-      default = {:if => :require_password?}
+      default = { if: :require_password? }
       assert_equal default, User.validates_confirmation_of_password_field_options
       assert_equal default, Employee.validates_confirmation_of_password_field_options
 
-      User.validates_confirmation_of_password_field_options = {:yes => "no"}
-      assert_equal({:yes => "no"}, User.validates_confirmation_of_password_field_options)
+      User.validates_confirmation_of_password_field_options = { yes: "no" }
+      assert_equal({ yes: "no" }, User.validates_confirmation_of_password_field_options)
       User.validates_confirmation_of_password_field_options default
       assert_equal default, User.validates_confirmation_of_password_field_options
     end
 
     def test_validates_length_of_password_confirmation_field_options_config
-      default = {:minimum => 4, :if => :require_password?}
+      default = { minimum: 8, if: :require_password? }
       assert_equal default, User.validates_length_of_password_confirmation_field_options
       assert_equal default, Employee.validates_length_of_password_confirmation_field_options
 
-      User.validates_length_of_password_confirmation_field_options = {:yes => "no"}
-      assert_equal({:yes => "no"}, User.validates_length_of_password_confirmation_field_options)
+      User.validates_length_of_password_confirmation_field_options = { yes: "no" }
+      assert_equal({ yes: "no" }, User.validates_length_of_password_confirmation_field_options)
       User.validates_length_of_password_confirmation_field_options default
       assert_equal default, User.validates_length_of_password_confirmation_field_options
     end
@@ -104,50 +107,56 @@ module ActsAsAuthenticTest
     end
 
     def test_validates_length_of_password
-      u = User.new(login: "abcde", email: "abcde@test.com", password: "abcde", password_confirmation: "abcde")
+      u = User.new(
+        login: "abcde",
+        email: "abcde@test.com",
+        password: "abcdefgh",
+        password_confirmation: "abcdefgh"
+      )
       assert u.valid?
 
-      u.password = u.password_confirmation = "abc"
-      assert !u.valid?
+      u.password = u.password_confirmation = "abcdef"
+      refute u.valid?
 
-      assert u.errors[:password].include?("is too short (minimum is 4 characters)")
-      assert u.errors[:password_confirmation].include?("is too short (minimum is 4 characters)")
+      assert u.errors[:password].include?("is too short (minimum is 8 characters)")
+      assert u.errors[:password_confirmation].include?("is too short (minimum is 8 characters)")
     end
 
     def test_validates_confirmation_of_password
-      u = User.new(login: "abcde", email: "abcde@test.com", password: "abcde", password_confirmation: "abcde")
+      u = User.new(
+        login: "abcde",
+        email: "abcde@test.com",
+        password: "abcdefgh",
+        password_confirmation: "abcdefgh"
+      )
       assert u.valid?
 
-      u.password_confirmation = "abcdefgh"
-      assert !u.valid?
+      u.password_confirmation = "abcdefghij"
+      refute u.valid?
 
-      if ActiveModel.respond_to?(:version) and ActiveModel.version.segments.first >= 4
-        assert u.errors[:password_confirmation].include?("doesn't match Password")
-      else
-        assert u.errors[:password].include?("doesn't match confirmation")
-      end
+      assert u.errors[:password_confirmation].include?("doesn't match Password")
     end
 
     def test_validates_length_of_password_confirmation
       u = User.new
 
-      u.password = "test"
+      u.password = "testpass"
       u.password_confirmation = ""
-      assert !u.valid?
-      assert u.errors[:password_confirmation].size > 0
+      refute u.valid?
+      refute u.errors[:password_confirmation].empty?
 
-      u.password_confirmation = "test"
-      assert !u.valid?
-      assert u.errors[:password_confirmation].size == 0
+      u.password_confirmation = "testpass"
+      refute u.valid?
+      assert u.errors[:password_confirmation].empty?
 
       ben = users(:ben)
       assert ben.valid?
 
-      ben.password = "newpass"
-      assert !ben.valid?
-      assert ben.errors[:password_confirmation].size > 0
+      ben.password = "newpasswd"
+      refute ben.valid?
+      refute ben.errors[:password_confirmation].empty?
 
-      ben.password_confirmation = "newpass"
+      ben.password_confirmation = "newpasswd"
       assert ben.valid?
     end
 
@@ -164,28 +173,36 @@ module ActsAsAuthenticTest
       ben = users(:ben)
 
       transition_password_to(Authlogic::CryptoProviders::BCrypt, ben)
-      transition_password_to(Authlogic::CryptoProviders::Sha1, ben, [Authlogic::CryptoProviders::Sha512, Authlogic::CryptoProviders::BCrypt])
-      transition_password_to(Authlogic::CryptoProviders::Sha512, ben, [Authlogic::CryptoProviders::Sha1, Authlogic::CryptoProviders::BCrypt])
+      transition_password_to(
+        Authlogic::CryptoProviders::Sha1,
+        ben,
+        [Authlogic::CryptoProviders::Sha512, Authlogic::CryptoProviders::BCrypt]
+      )
+      transition_password_to(
+        Authlogic::CryptoProviders::Sha512,
+        ben,
+        [Authlogic::CryptoProviders::Sha1, Authlogic::CryptoProviders::BCrypt]
+      )
     end
 
     def test_checks_password_against_database
       ben = users(:aaron)
       ben.password = "new pass"
-      assert !ben.valid_password?("new pass")
+      refute ben.valid_password?("new pass")
       assert ben.valid_password?("aaronrocks")
     end
 
     def test_checks_password_against_database_and_always_fails_on_new_records
       user = User.new
       user.password = "new pass"
-      assert !user.valid_password?("new pass")
+      refute user.valid_password?("new pass")
     end
 
     def test_checks_password_against_object
       ben = users(:ben)
       ben.password = "new pass"
       assert ben.valid_password?("new pass", false)
-      assert !ben.valid_password?("benrocks", false)
+      refute ben.valid_password?("benrocks", false)
     end
 
     def test_reset_password
@@ -215,7 +232,12 @@ module ActsAsAuthenticTest
     end
 
     private
-      def transition_password_to(crypto_provider, records, from_crypto_providers = Authlogic::CryptoProviders::Sha512)
+
+      def transition_password_to(
+        crypto_provider,
+        records,
+        from_crypto_providers = Authlogic::CryptoProviders::Sha512
+      )
         records = [records] unless records.is_a?(Array)
         User.acts_as_authentic do |c|
           c.crypto_provider = crypto_provider

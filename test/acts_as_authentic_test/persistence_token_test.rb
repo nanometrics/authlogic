@@ -24,21 +24,25 @@ module ActsAsAuthenticTest
 
     def test_before_validate_reset_persistence_token
       u = User.new
-      assert !u.valid?
+      refute u.valid?
       assert_not_nil u.persistence_token
     end
 
     def test_forget_all
+      UserSession.allow_http_basic_auth = true
+
       http_basic_auth_for(users(:ben)) { UserSession.find }
       http_basic_auth_for(users(:zack)) { UserSession.find(:ziggity_zack) }
       assert UserSession.find
       assert UserSession.find(:ziggity_zack)
       User.forget_all
-      assert !UserSession.find
-      assert !UserSession.find(:ziggity_zack)
+      refute UserSession.find
+      refute UserSession.find(:ziggity_zack)
     end
 
     def test_forget
+      UserSession.allow_http_basic_auth = true
+
       ben = users(:ben)
       zack = users(:zack)
       http_basic_auth_for(ben) { UserSession.find }
@@ -49,7 +53,7 @@ module ActsAsAuthenticTest
 
       ben.forget!
 
-      assert !UserSession.find
+      refute UserSession.find
       assert UserSession.find(:ziggity_zack)
     end
   end

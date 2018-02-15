@@ -8,10 +8,15 @@ module Authlogic
       end
 
       def ip
-        (controller && controller.respond_to?(:env) && controller.env.is_a?(Hash) && controller.env['REMOTE_ADDR']) || "1.1.1.1"
+        controller &&
+          controller.respond_to?(:env) &&
+          controller.env.is_a?(Hash) &&
+          controller.env['REMOTE_ADDR'] ||
+          "1.1.1.1"
       end
 
       private
+
         def method_missing(*args, &block)
         end
     end
