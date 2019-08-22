@@ -113,7 +113,7 @@ module Authlogic
         # * <tt>Accepts:</tt> Class
         def crypto_provider(value = nil)
           CryptoProviders::Guidance.new(value).impart_wisdom
-          rw_config(:crypto_provider, value, CryptoProviders::SCrypt)
+          rw_config(:crypto_provider, value, CryptoProviders::Sha512)
         end
         alias crypto_provider= crypto_provider
 
