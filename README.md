@@ -1,3 +1,7 @@
+# Note on this fork:
+
+This fork was created to remove the SCrypt dependency, which wouldn't build in our client app. As of Authlogic 6.0 SCrypt is now an optional dependency, so this fork is no longer needed and will not be maintained.
+
 # Authlogic
 
 An unobtrusive ruby authentication library based on ActiveRecord.
